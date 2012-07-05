@@ -16,4 +16,28 @@ namespace :git do
       #{echo_cmd %[rm -rf .git]}
     }
   end
+
+  desc "Clones the Git repository to the release path."
+  task :shared_clone do
+    queue %{
+      echo "-----> Cloning the Git repository"
+      #{echo_cmd %[git clone --bare "#{repository!}" #{git_dir!}]}
+    }
+  end
+
+  desc "Update the cached repository"
+  task :update do
+    queue %[
+      echo "-----> Updating the Git repository"
+      #{echo_cmd %{git --git-dir=#{git_dir!} fetch}}
+    ]
+  end
+
+  desc "Create a copy of the cached repository"
+  task :copy do
+    queue %[
+      echo "-----> Extracting from the Git repository"
+      #{echo_cmd %{git --git-dir=#{git_dir!} archive --format=tar #{revision} | tar -xf- #{excludes.map{|e| "--exclude=#{e}" }.join(' ')}}}
+    ]
+  end
 end
